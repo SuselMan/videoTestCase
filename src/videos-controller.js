@@ -12,7 +12,9 @@ export class VideosController {
     this.players = [];
     this.preloader = null;
     this.isMuted = true;
-    this.loadVideos().then();
+    this.loadVideos().then(() => {
+      this.players[0]?.play();
+    });
   }
 
   toggleMuted() {
@@ -43,7 +45,6 @@ export class VideosController {
     try {
       const data = await this.api.getVideos();
       this.nextCursor = data.nextCursor;
-      this.prevCursor = data.prevCursor;
       this.removePreloader();
       data.items.forEach((video, index) => {
         const player = new Player(video, this.players.length, this.isMuted, this.toggleMuted.bind(this));
@@ -51,6 +52,10 @@ export class VideosController {
         this.scrollContainer.appendChild(player.containerElement);
         if( index === 1 ) {
           player.observe((data) => this.videoChanged(data));
+          player.load();
+        }
+        if(index === 0) {
+          player.load();
         }
       });
     } catch (err) {
@@ -65,8 +70,7 @@ export class VideosController {
       const data = await this.api.getVideos({ cursor: this.nextCursor });
       this.removePreloader();
       this.nextCursor = data.nextCursor;
-      this.prevCursor = data.prevCursor;
-      data.items.forEach((video, index) => {
+      data.items.forEach((video) => {
         const player = new Player(video, this.players.length, this.isMuted, this.toggleMuted.bind(this));
         this.players.push(player);
         this.scrollContainer.appendChild(player.containerElement);
@@ -80,6 +84,17 @@ export class VideosController {
     this.prevVideo?.unobserve();
     this.nextVideo?.unobserve();
     this.currentVideo.stop();
+
+    const oldIndex = this.currentVideoIndex;
+
+    // выгружаем тех кто вышел за окно
+    const unloadIndex = index > oldIndex ? oldIndex - 1 : oldIndex + 1;
+    this.players[unloadIndex]?.unload();
+
+    // загружаем тех кто вошёл в окно
+    const loadIndex = index > oldIndex ? index + 1 : index - 1;
+    this.players[loadIndex]?.load();
+
     this.currentVideoIndex = index;
     this.currentVideo.play();
     this.prevVideo?.observe((data) => this.videoChanged(data));

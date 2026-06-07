@@ -19,10 +19,12 @@ export class Player {
     this.video.preload = 'metadata';
     this.video.classList.add(videoClassName);
     this.container.classList.add(containerClassName);
-    this.video.src = `${videoPath}/${data.filename}`;
+    this.src = `${videoPath}/${data.filename}`;
     this.observer = null;
     this.muteButton = null;
     this.uiContainer = null;
+    this.progressBar = null;
+    this.progressBarContainer = null;
     this.toggleMute = toggleMute;
     this.createUi();
   }
@@ -58,18 +60,43 @@ export class Player {
       }
       this.video.muted = e.detail;
     });
+
+    this.progressBarContainer = document.createElement('div');
+    this.progressBarContainer.classList.add('progress-bar-container');
+    this.progressBar = document.createElement('div');
+    this.progressBar.classList.add('progress-bar');
+    this.progressBarContainer.appendChild(this.progressBar);
+
+    this.progressBarContainer.addEventListener('click', (e) => {
+      const ratio = e.offsetX / e.target.offsetWidth;
+      this.video.currentTime = this.video.duration * ratio;
+      e.stopPropagation();
+    });
+
+
+    this.video.addEventListener('timeupdate', () => {
+      const progress = this.video.currentTime / this.video.duration;
+      this.progressBar.style.width = `${progress * 100}%`;
+    });
+
+    this.uiContainer.appendChild(this.progressBarContainer);
   }
 
   get containerElement() {
     return this.container;
   }
 
-  showVideo() {
-
+  load() {
+    if(this.video.src) {
+      return;
+    }
+    this.video.src = this.src;
+    this.video.load();
   }
 
-  hideVideo() {
-
+  unload() {
+    this.video.src = '';
+    this.video.load();
   }
 
   play() {
@@ -98,6 +125,8 @@ export class Player {
   }
 
   unobserve() {
-
+    this.observer.unobserve(this.containerElement);
+    this.observer.disconnect();
+    this.observer = null;
   }
 }

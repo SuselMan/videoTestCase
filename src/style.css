@@ -1,10 +1,15 @@
 :root {
   --videoRatio:  720 / 1280;
   --padding-md: 16px;
+  --padding-sm: 8px;
+  --padding-xs: 4px;
+  --accent-color: #9459ee;
+  --background-color: black;
 }
 
 body {
   margin: 0;
+  background-color: var(--background-color);
 }
 
 #app {
@@ -61,6 +66,11 @@ body {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   max-height: 100vh;
+  scrollbar-width: none;
+}
+
+#scroll-container::-webkit-scrollbar {
+  display: none;
 }
 
 .preloader {
@@ -69,4 +79,19 @@ body {
   align-items: center;
   aspect-ratio: var(--videoRatio);
   height: 100vh;
+}
+
+.progress-bar-container {
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  position: absolute;
+  bottom: 12px;
+  left: var(--padding-md);
+  right: var(--padding-md);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background-color: var(--accent-color);
 }
