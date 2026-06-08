@@ -161,6 +161,7 @@ export class Player {
   }
 
   unobserve() {
+    if (!this.intersectionObserver) return;
     this.intersectionObserver.unobserve(this.containerElm);
     this.intersectionObserver.disconnect();
     this.intersectionObserver = null;
