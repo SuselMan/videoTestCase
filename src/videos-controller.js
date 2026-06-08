@@ -80,23 +80,27 @@ export class VideosController {
     }
   }
 
-  videoChanged(index) {
+  videoChanged(newIndex) {
     this.prevVideo?.unobserve();
     this.nextVideo?.unobserve();
     this.currentVideo.stop();
 
     const oldIndex = this.currentVideoIndex;
 
-    // выгружаем тех кто вышел за окно
-    const unloadIndex = index > oldIndex ? oldIndex - 1 : oldIndex + 1;
-    this.players[unloadIndex]?.unload();
+    if(newIndex > oldIndex) {
+      this.prevVideo?.unload();
+    }
+    if(newIndex < oldIndex) {
+      this.nextVideo?.unload();
+    }
 
-    // загружаем тех кто вошёл в окно
-    const loadIndex = index > oldIndex ? index + 1 : index - 1;
-    this.players[loadIndex]?.load();
 
-    this.currentVideoIndex = index;
+    this.currentVideoIndex = newIndex;
     this.currentVideo.play();
+
+    this.prevVideo?.load();
+    this.nextVideo?.load();
+
     this.prevVideo?.observe((data) => this.videoChanged(data));
     this.nextVideo?.observe((data) => this.videoChanged(data));
 
@@ -122,8 +126,4 @@ export class VideosController {
     }
     return null;
   }
-
-
-
-
 }

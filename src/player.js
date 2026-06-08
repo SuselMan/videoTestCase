@@ -4,34 +4,40 @@ const videoClassName = 'video';
 const containerClassName = 'player-container';
 const videoPath = 'video'
 const uiClassName = 'player-ui-container';
+const threshold = 0.7;
 
 export class Player {
   constructor(data = {}, index, isMuted = true, toggleMute = () => {}) {
     this.index = index;
     this.isPlaying = false;
-    // { id: '1', filename: '2466797579047759691.MP4', title: 'Video 1', description: 'Test video description 1' }
-    this.container = document.createElement('div');
-    this.video = document.createElement('video');
-    this.container.appendChild(this.video);
-    this.video.muted = isMuted;
-    this.video.loop = true;
-    this.video.playsinline = true;
-    this.video.preload = 'metadata';
-    this.video.classList.add(videoClassName);
-    this.container.classList.add(containerClassName);
-    this.src = `${videoPath}/${data.filename}`;
+    this.containerElm = null;
+    this.videoElm = null;
     this.observer = null;
     this.muteButton = null;
     this.uiContainer = null;
     this.progressBar = null;
     this.progressBarContainer = null;
     this.toggleMute = toggleMute;
+    this.createVideo(isMuted);
     this.createUi();
+  }
+
+  createVideo(isMuted = true) {
+    this.containerElm = document.createElement('div');
+    this.videoElm = document.createElement('video');
+    this.containerElm.appendChild(this.videoElm);
+    this.videoElm.muted = isMuted;
+    this.videoElm.loop = true;
+    this.videoElm.playsinline = true;
+    this.videoElm.preload = 'metadata';
+    this.videoElm.classList.add(videoClassName);
+    this.containerElm.classList.add(containerClassName);
+    this.src = '';
   }
 
   createUi() {
     this.uiContainer = document.createElement('div');
-    this.container.appendChild(this.uiContainer);
+    this.containerElm.appendChild(this.uiContainer);
     this.uiContainer.classList.add(uiClassName);
     const muteButton = document.createElement('button');
     muteButton.classList.add('mute-button');
@@ -52,13 +58,12 @@ export class Player {
     })
 
     document.addEventListener('mutechange', (e) => {
-      console.log(e);
       if(e.detail) {
         this.muteButton.classList.remove('mute-button_muted');
       } else {
         this.muteButton.classList.add('mute-button_muted');
       }
-      this.video.muted = e.detail;
+      this.videoElm.muted = e.detail;
     });
 
     this.progressBarContainer = document.createElement('div');
@@ -68,14 +73,14 @@ export class Player {
     this.progressBarContainer.appendChild(this.progressBar);
 
     this.progressBarContainer.addEventListener('click', (e) => {
-      const ratio = e.offsetX / e.target.offsetWidth;
-      this.video.currentTime = this.video.duration * ratio;
+      const ratio = e.offsetX / e.currentTarget.offsetWidth;
+      this.videoElm.currentTime = this.videoElm.duration * ratio;
       e.stopPropagation();
     });
 
 
-    this.video.addEventListener('timeupdate', () => {
-      const progress = this.video.currentTime / this.video.duration;
+    this.videoElm.addEventListener('timeupdate', () => {
+      const progress = this.videoElm.currentTime / this.videoElm.duration;
       this.progressBar.style.width = `${progress * 100}%`;
     });
 
@@ -83,49 +88,49 @@ export class Player {
   }
 
   get containerElement() {
-    return this.container;
+    return this.containerElm;
   }
 
   load() {
-    if(this.video.src) {
+    if(this.videoElm.getAttribute('src')) {
       return;
     }
-    this.video.src = this.src;
-    this.video.load();
+    this.uiContainer.classList.remove('hidden');
+    this.videoElm.src = this.src;
+    this.videoElm.load();
   }
 
   unload() {
-    this.video.src = '';
-    this.video.load();
+    this.videoElm.src = '';
+    this.videoElm.load();
+    this.uiContainer.classList.add('hidden');
   }
 
   play() {
-    this.video.play().then(() => {
+    this.videoElm.play().then(() => {
       this.isPlaying = true;
     }).catch(err => {});
   }
 
   stop() {
-    this.video.pause();
+    this.videoElm.pause();
     this.isPlaying = false;
   }
 
   observe(callback) {
     this.observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
-      // TODO: 0.7 to contst?
-      if(entry.intersectionRatio >= 0.7) {
-        console.log(this.index, entry);
+      if(entry.intersectionRatio >= threshold) {
         callback(this.index);
       }
     }, {
-      threshold: 0.7,
+      threshold,
     });
-    this.observer.observe(this.containerElement);
+    this.observer.observe(this.containerElmElement);
   }
 
   unobserve() {
-    this.observer.unobserve(this.containerElement);
+    this.observer.unobserve(this.containerElmElement);
     this.observer.disconnect();
     this.observer = null;
   }
