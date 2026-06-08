@@ -2,6 +2,17 @@ import { Player } from '../components/player/player.js';
 import { MockVideosApi } from '../api/mock-videos-api.js';
 import { SoundController } from './sound-controller.js';
 import preloaderPath from '../assets/preloader.svg?url';
+import arrowUpUrl from '../assets/arrow_up.svg?url';
+import arrowDownUrl from '../assets/arrow_down.svg?url';
+
+const cls = {
+  preloader: 'preloader',
+  preloaderImg: 'preloader__img',
+  feedError: 'feed-error',
+  feedNav: 'feed-nav',
+  navBtn: 'feed-nav__btn',
+  navBtnHidden: 'feed-nav__btn--hidden',
+};
 
 export class VideosController {
   constructor() {
@@ -13,18 +24,22 @@ export class VideosController {
     this.preloader = null;
     this.isLoadingNext = false;
     this.soundController = new SoundController();
+    this.navUpBtn = null;
+    this.navDownBtn = null;
+    this._createNavButtons();
     this.keydownHandler = this._onKeydown.bind(this);
     document.addEventListener('keydown', this.keydownHandler);
     this.loadVideos().then(() => {
       this.players[0]?.play();
+      this._updateNavButtons();
     });
   }
 
   addPreloader() {
     const container = document.createElement('div');
-    container.classList.add('preloader');
+    container.classList.add(cls.preloader);
     const img = document.createElement('img');
-    img.classList.add('preloader__img');
+    img.classList.add(cls.preloaderImg);
     img.src = preloaderPath;
     container.appendChild(img);
     this.scrollContainer.appendChild(container);
@@ -80,6 +95,42 @@ export class VideosController {
     }
   }
 
+  _createNavButtons() {
+    const nav = document.createElement('nav');
+    nav.classList.add(cls.feedNav);
+
+    this.navUpBtn = document.createElement('button');
+    this.navUpBtn.classList.add(cls.navBtn);
+    this.navUpBtn.setAttribute('aria-label', 'Previous video');
+    const upImg = document.createElement('img');
+    upImg.src = arrowUpUrl;
+    upImg.setAttribute('aria-hidden', 'true');
+    this.navUpBtn.appendChild(upImg);
+    this.navUpBtn.addEventListener('click', () => {
+      this.prevVideo?.containerElement.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    this.navDownBtn = document.createElement('button');
+    this.navDownBtn.classList.add(cls.navBtn);
+    this.navDownBtn.setAttribute('aria-label', 'Next video');
+    const downImg = document.createElement('img');
+    downImg.src = arrowDownUrl;
+    downImg.setAttribute('aria-hidden', 'true');
+    this.navDownBtn.appendChild(downImg);
+    this.navDownBtn.addEventListener('click', () => {
+      this.nextVideo?.containerElement.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    nav.appendChild(this.navUpBtn);
+    nav.appendChild(this.navDownBtn);
+    document.querySelector('#app').appendChild(nav);
+  }
+
+  _updateNavButtons() {
+    this.navUpBtn.classList.toggle(cls.navBtnHidden, !this.prevVideo);
+    this.navDownBtn.classList.toggle(cls.navBtnHidden, !this.nextVideo);
+  }
+
   videoChanged(newIndex) {
     const oldIndex = this.currentVideoIndex;
     const prev = this.prevVideo;
@@ -101,6 +152,8 @@ export class VideosController {
     this.prevVideo?.observe((idx) => this.videoChanged(idx));
     this.nextVideo?.observe((idx) => this.videoChanged(idx));
 
+    this._updateNavButtons();
+
     if (this.currentVideoIndex >= this.players.length - 3 && this.nextCursor) {
       this.loadNext();
     }
@@ -118,7 +171,7 @@ export class VideosController {
 
   _showFeedError() {
     const msg = document.createElement('p');
-    msg.classList.add('feed-error');
+    msg.classList.add(cls.feedError);
     msg.textContent = 'Failed to load videos. Please try again later.';
     this.scrollContainer.appendChild(msg);
   }

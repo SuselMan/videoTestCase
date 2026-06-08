@@ -6,6 +6,8 @@
   --padding-xs: 4px;
   --accent-color: #9459ee;
   --background-color: black;
+  --nav-btn-bg: rgba(255, 255, 255, 0.15);
+  --nav-btn-bg-hover: rgba(255, 255, 255, 0.3);
 }
 
 body {
@@ -57,4 +59,43 @@ body {
 
 .hidden {
   display: none;
+}
+
+.feed-nav {
+  position: fixed;
+  right: var(--padding-md);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-sm);
+  z-index: 10;
+}
+
+.feed-nav__btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--nav-btn-bg);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.feed-nav__btn:hover {
+  background-color: var(--nav-btn-bg-hover);
+}
+
+.feed-nav__btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.feed-nav__btn--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
