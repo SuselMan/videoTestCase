@@ -1,4 +1,5 @@
 :root {
+  --padding-lg: 32px;
   --padding-md: 16px;
   --padding-sm: 8px;
   --padding-xs: 4px;
@@ -9,6 +10,7 @@
 body {
   margin: 0;
   background-color: var(--background-color);
+  -webkit-tap-highlight-color: transparent;
 }
 
 #app {
@@ -20,11 +22,12 @@ body {
   display: flex;
   align-items: center;
   flex-direction: column;
-  overflow-y: scroll;
   scroll-snap-type: y mandatory;
   max-height: 100vh;
   max-height: 100dvh;
   scrollbar-width: none;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
 }
 
 #scroll-container::-webkit-scrollbar {
