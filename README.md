@@ -29,4 +29,4 @@ At most three videos are loaded at a time: current, previous, and next. When the
 
 
 ### Error handling
-Added api and video error handling examples (commented in in src/api/mock-videos-api.js), just uncomment if needed
+Added api and video error handling examples (commented in src/api/mock-videos-api.js), just uncomment if needed
