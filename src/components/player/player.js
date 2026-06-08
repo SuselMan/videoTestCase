@@ -39,6 +39,12 @@ export class Player {
     this.videoErrorHandler = this._onVideoError.bind(this);
     this.videoPlayHandler = () => { this.isPlaying = true; };
     this.videoPauseHandler = () => { this.isPlaying = false; };
+    this.uiKeydownHandler = (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        this._onPlayPause();
+      }
+    };
 
     this.src = `${videoPath}/${data.filename}`;
     this.title = data.title ?? '';
@@ -68,6 +74,9 @@ export class Player {
   _createUi() {
     this.uiElm = document.createElement('div');
     this.uiElm.classList.add(cls.ui);
+    this.uiElm.setAttribute('role', 'button');
+    this.uiElm.setAttribute('aria-label', 'Play/Pause');
+    this.uiElm.setAttribute('tabindex', '0');
 
     this.muteBtn = document.createElement('button');
     this.muteBtn.classList.add(cls.muteBtn);
@@ -138,6 +147,7 @@ export class Player {
     this.videoElm.addEventListener('error', this.videoErrorHandler);
     this.videoElm.addEventListener('play', this.videoPlayHandler);
     this.videoElm.addEventListener('pause', this.videoPauseHandler);
+    this.uiElm.addEventListener('keydown', this.uiKeydownHandler);
     this.progressBar.addHandlers();
   }
 
@@ -145,6 +155,7 @@ export class Player {
     document.removeEventListener('muteChanged', this.muteHandler);
     this.muteBtn.removeEventListener('click', this.muteBtnHandler);
     this.uiElm.removeEventListener('click', this.playPauseHandler);
+    this.uiElm.removeEventListener('keydown', this.uiKeydownHandler);
     this.videoElm.removeEventListener('error', this.videoErrorHandler);
     this.videoElm.removeEventListener('play', this.videoPlayHandler);
     this.videoElm.removeEventListener('pause', this.videoPauseHandler);
