@@ -1,6 +1,6 @@
 import { Player } from '../components/player/player.js';
 import { MockVideosApi } from '../api/mock-videos-api.js';
-import { SoundController } from '../sound-controller.js';
+import { SoundController } from './sound-controller.js';
 import preloaderPath from '../assets/preloader.svg?url';
 
 export class VideosController {
