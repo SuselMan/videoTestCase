@@ -25,3 +25,7 @@ At most three videos are loaded at a time: current, previous, and next. When the
 ### Video change detection
 
 `IntersectionObserver` with a 0.7 threshold watches the neighboring players. Once one of them enters the viewport, the switch happens: the old video stops and the new one starts playing.
+
+
+### Error handling
+Added api and video error handling examples (commented in in src/api/mock-videos-api.js), just uncomment if needed
