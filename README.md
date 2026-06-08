@@ -13,7 +13,8 @@ Open `http://localhost:5173`
 
 ## Solution description
 
-- **`Player`** — manages a single video: DOM, playback, progress bar, seek, resource loading/unloading.
+- **`Player`** — manages a single video: DOM, playback, resource loading/unloading.
+- **`ProgressBar`** — progress bar, seek
 - **`VideosController`** — controlls the feed: fetches videos from the API, switches players, handles infinite scroll.
 - **`SoundController`** — global mute state, syncs all players via `CustomEvent`.
 - **`MockVideosApi`** — simulates a paginated API with cursor-based navigation.
