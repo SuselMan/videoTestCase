@@ -1,6 +1,6 @@
 .progress-bar {
   position: absolute;
-  bottom: 12px;
+  bottom: var(--padding-lg);
   left: 0;
   right: 0;
   height: 4px;
