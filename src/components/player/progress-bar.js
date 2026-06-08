@@ -55,17 +55,20 @@ export class ProgressBar {
     this.isDragging = true;
     this.containerElm.setPointerCapture(e.pointerId);
     this._seek(e);
+    e.stopPropagation();
   }
 
   _onPointerMove(e) {
     if (!this.isDragging) return;
     this._seek(e);
+    e.stopPropagation();
   }
 
   _onPointerUp(e) {
     if (!this.isDragging) return;
     this.isDragging = false;
     this._seek(e);
+    e.stopPropagation();
   }
 
   _onPointerCancel() {
