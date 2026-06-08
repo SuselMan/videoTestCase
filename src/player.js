@@ -2,8 +2,13 @@ import './style.css';
 
 const videoClassName = 'video';
 const containerClassName = 'player-container';
-const videoPath = 'video'
 const uiClassName = 'player-ui-container';
+const progressBarContainerClassName = 'progress-bar-container';
+const progressBarClassName = 'progress-bar';
+const muteButtonClassName = 'mute-button';
+const muteButtonMutedClassName = 'mute-button_muted';
+
+const videoPath = 'video'
 const threshold = 0.7;
 
 export class Player {
@@ -55,14 +60,14 @@ export class Player {
     this.containerElm.appendChild(this.uiContainerElm);
     this.uiContainerElm.classList.add(uiClassName);
     const muteButton = document.createElement('button');
-    muteButton.classList.add('mute-button');
+    muteButton.classList.add(muteButtonClassName);
     this.uiContainerElm.appendChild(muteButton);
     this.muteButtonElm = muteButton;
 
     this.progressBarContainerElm = document.createElement('div');
-    this.progressBarContainerElm.classList.add('progress-bar-container');
+    this.progressBarContainerElm.classList.add(progressBarContainerClassName);
     this.progressBarElm = document.createElement('div');
-    this.progressBarElm.classList.add('progress-bar');
+    this.progressBarElm.classList.add(progressBarClassName);
     this.progressBarContainerElm.appendChild(this.progressBarElm);
 
     this.uiContainerElm.appendChild(this.progressBarContainerElm);
@@ -95,9 +100,9 @@ export class Player {
 
   handleMuteChange(isMuted) {
     if(isMuted) {
-      this.muteButtonElm.classList.remove('mute-button_muted');
+      this.muteButtonElm.classList.remove(muteButtonMutedClassName);
     } else {
-      this.muteButtonElm.classList.add('mute-button_muted');
+      this.muteButtonElm.classList.add(muteButtonMutedClassName);
     }
     this.videoElm.muted = isMuted;
   }
@@ -111,7 +116,7 @@ export class Player {
   }
 
   removeHandlers() {
-    document.addEventListener('muteChanged', this.muteHandler);
+    document.removeEventListener('muteChanged', this.muteHandler);
     this.muteButtonElm.removeEventListener('click', this.muteButtonHandler);
     this.uiContainerElm.removeEventListener('click', this.playPauseHandler);
     this.progressBarContainerElm.removeEventListener('click', this.progressBarClickHandler);
@@ -148,7 +153,6 @@ export class Player {
   }
 
   observe(callback) {
-    document.addEventListener('muteChanged', this.muteHandler);
     this.intersectionObserver = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if(entry.intersectionRatio >= threshold) {

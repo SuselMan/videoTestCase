@@ -1,18 +1,8 @@
 import { Player } from './player.js';
 import { MockVideosApi } from './mock-videos-api.js';
+import { SoundController } from './sound-controller.js';
+
 import preloaderPath from './assets/preloader.svg?url';
-
-export class SoundController {
-  constructor() {
-    this.isMuted = true;
-    this.toggleMute = this._toggleMute.bind(this);
-  }
-
-  _toggleMute() {
-   this.isMuted  = !this.isMuted
-   document.dispatchEvent(new CustomEvent('muteChanged', { detail: this.isMuted }));
-  }
-}
 
 export class VideosController {
   constructor() {
@@ -41,9 +31,7 @@ export class VideosController {
   }
 
   removePreloader() {
-    if(this.preloader) {
-      this.preloader.parentNode.removeChild(this.preloader);
-    }
+    this.preloader?.remove();
   }
 
   addPlayer(videoData) {
