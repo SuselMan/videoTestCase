@@ -66,6 +66,23 @@
   pointer-events: none;
 }
 
+.player__playback-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.player__playback-icon--visible {
+  opacity: 1;
+  transition: none;
+}
+
 .player__error {
   position: absolute;
   top: 50%;

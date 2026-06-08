@@ -1,5 +1,7 @@
 import './player.css';
 import { ProgressBar } from './progress-bar.js';
+import playIconUrl from '../../assets/play.svg?url';
+import pauseIconUrl from '../../assets/pause.svg?url';
 
 const videoPath = 'video';
 const threshold = 0.7;
@@ -12,6 +14,8 @@ const cls = {
   muteBtnMuted: 'player__mute-btn--muted',
   title: 'player__title',
   error: 'player__error',
+  playbackIcon: 'player__playback-icon',
+  playbackIconVisible: 'player__playback-icon--visible',
 };
 
 export class Player {
@@ -26,6 +30,8 @@ export class Player {
     this.uiElm = null;
     this.videoElm = null;
     this.muteBtn = null;
+    this.playbackIconElm = null;
+    this._playbackIconTimer = null;
 
     this.muteHandler = (e) => this._onMuteChange(e.detail);
     this.muteBtnHandler = this._onMuteBtn.bind(this);
@@ -73,17 +79,33 @@ export class Player {
       this.uiElm.appendChild(titleElm);
     }
 
+    this.playbackIconElm = document.createElement('img');
+    this.playbackIconElm.classList.add(cls.playbackIcon);
+    this.playbackIconElm.setAttribute('aria-hidden', 'true');
+    this.uiElm.appendChild(this.playbackIconElm);
+
     this.progressBar = new ProgressBar(this.videoElm);
     this.uiElm.appendChild(this.progressBar.element);
 
     this.containerElm.appendChild(this.uiElm);
   }
 
+  _showPlaybackIcon(isPlaying) {
+    clearTimeout(this._playbackIconTimer);
+    this.playbackIconElm.src = isPlaying ? playIconUrl : pauseIconUrl;
+    this.playbackIconElm.classList.add(cls.playbackIconVisible);
+    this._playbackIconTimer = setTimeout(() => {
+      this.playbackIconElm.classList.remove(cls.playbackIconVisible);
+    }, 600);
+  }
+
   _onPlayPause() {
     if (this.isPlaying) {
       this.stop();
+      this._showPlaybackIcon(false);
     } else {
       this.play();
+      this._showPlaybackIcon(true);
     }
   }
 
