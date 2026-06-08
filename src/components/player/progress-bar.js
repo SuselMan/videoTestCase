@@ -18,6 +18,7 @@ export class ProgressBar {
     this.pointerMoveHandler = this._onPointerMove.bind(this);
     this.pointerUpHandler = this._onPointerUp.bind(this);
     this.pointerCancelHandler = this._onPointerCancel.bind(this);
+    this.clickHandler = (e) => e.stopPropagation();
 
     this._create();
   }
@@ -81,6 +82,7 @@ export class ProgressBar {
     this.containerElm.addEventListener('pointermove', this.pointerMoveHandler);
     this.containerElm.addEventListener('pointerup', this.pointerUpHandler);
     this.containerElm.addEventListener('pointercancel', this.pointerCancelHandler);
+    this.containerElm.addEventListener('click', this.clickHandler);
   }
 
   removeHandlers() {
@@ -89,5 +91,6 @@ export class ProgressBar {
     this.containerElm.removeEventListener('pointermove', this.pointerMoveHandler);
     this.containerElm.removeEventListener('pointerup', this.pointerUpHandler);
     this.containerElm.removeEventListener('pointercancel', this.pointerCancelHandler);
+    this.containerElm.removeEventListener('click', this.clickHandler);
   }
 }
