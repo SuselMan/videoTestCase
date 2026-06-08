@@ -28,7 +28,9 @@ export class VideosController {
     this.navDownBtn = null;
     this._createNavButtons();
     this.keydownHandler = this._onKeydown.bind(this);
+    this.visibilityHandler = this._onVisibilityChange.bind(this);
     document.addEventListener('keydown', this.keydownHandler);
+    document.addEventListener('visibilitychange', this.visibilityHandler);
     this.loadVideos().then(() => {
       this.players[0]?.play();
       this._updateNavButtons();
@@ -156,6 +158,15 @@ export class VideosController {
 
     if (this.currentVideoIndex >= this.players.length - 3 && this.nextCursor) {
       this.loadNext();
+    }
+  }
+
+  _onVisibilityChange() {
+    if (document.hidden) {
+      this._wasPlayingBeforeHide = this.currentVideo?.isPlaying ?? false;
+      this.currentVideo?.stop();
+    } else if (this._wasPlayingBeforeHide) {
+      this.currentVideo?.play();
     }
   }
 
