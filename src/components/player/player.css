@@ -1,13 +1,15 @@
 .player {
   padding: 0;
+  width: 100vw;
+  height: 100vh;
   min-width: 100vw;
   min-height: 100vh;
+  overflow: hidden;
   scroll-snap-align: start;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: var(--padding-md);
 }
 
 .player__video {
