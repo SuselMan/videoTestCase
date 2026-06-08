@@ -52,7 +52,7 @@
 
 .player__title {
   position: absolute;
-  bottom: 32px;
+  bottom: var(--padding-xl);
   left: 0;
   right: 0;
   padding: 0 var(--padding-md);

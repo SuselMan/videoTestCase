@@ -17,6 +17,7 @@ export class ProgressBar {
     this.pointerDownHandler = this._onPointerDown.bind(this);
     this.pointerMoveHandler = this._onPointerMove.bind(this);
     this.pointerUpHandler = this._onPointerUp.bind(this);
+    this.pointerCancelHandler = this._onPointerCancel.bind(this);
 
     this._create();
   }
@@ -67,11 +68,16 @@ export class ProgressBar {
     this._seek(e);
   }
 
+  _onPointerCancel() {
+    this.isDragging = false;
+  }
+
   addHandlers() {
     this.video.addEventListener('timeupdate', this.timeUpdateHandler);
     this.containerElm.addEventListener('pointerdown', this.pointerDownHandler);
     this.containerElm.addEventListener('pointermove', this.pointerMoveHandler);
     this.containerElm.addEventListener('pointerup', this.pointerUpHandler);
+    this.containerElm.addEventListener('pointercancel', this.pointerCancelHandler);
   }
 
   removeHandlers() {
@@ -79,5 +85,6 @@ export class ProgressBar {
     this.containerElm.removeEventListener('pointerdown', this.pointerDownHandler);
     this.containerElm.removeEventListener('pointermove', this.pointerMoveHandler);
     this.containerElm.removeEventListener('pointerup', this.pointerUpHandler);
+    this.containerElm.removeEventListener('pointercancel', this.pointerCancelHandler);
   }
 }
