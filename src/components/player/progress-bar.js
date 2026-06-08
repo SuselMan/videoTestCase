@@ -1,3 +1,5 @@
+import './progress-bar.css';
+
 const cls = {
   container: 'progress-bar',
   fill: 'progress-bar__fill',
