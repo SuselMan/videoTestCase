@@ -1,4 +1,5 @@
 import './style.css';
-import { VideosController } from './videos-controller.js';
+
+import { VideosController } from './controllers/videos-controller.js';
 
 new VideosController();
