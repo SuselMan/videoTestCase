@@ -127,7 +127,7 @@ export class Player {
   }
 
   _onMuteChange(isMuted) {
-    this.muteBtn.classList.toggle(cls.muteBtnMuted, !isMuted);
+    this.muteBtn.classList.toggle(cls.muteBtnMuted, isMuted);
     this.videoElm.muted = isMuted;
   }
 
