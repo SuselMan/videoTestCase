@@ -74,6 +74,7 @@ export class VideosController {
       data.items.forEach((videoData) => this.addPlayer(videoData));
     } catch {
       this.removePreloader();
+      this._showFeedError();
     } finally {
       this.isLoadingNext = false;
     }

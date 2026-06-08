@@ -37,6 +37,8 @@ export class Player {
     this.muteBtnHandler = this._onMuteBtn.bind(this);
     this.playPauseHandler = this._onPlayPause.bind(this);
     this.videoErrorHandler = this._onVideoError.bind(this);
+    this.videoPlayHandler = () => { this.isPlaying = true; };
+    this.videoPauseHandler = () => { this.isPlaying = false; };
 
     this.src = `${videoPath}/${data.filename}`;
     this.title = data.title ?? '';
@@ -134,6 +136,8 @@ export class Player {
     this.muteBtn.addEventListener('click', this.muteBtnHandler);
     this.uiElm.addEventListener('click', this.playPauseHandler);
     this.videoElm.addEventListener('error', this.videoErrorHandler);
+    this.videoElm.addEventListener('play', this.videoPlayHandler);
+    this.videoElm.addEventListener('pause', this.videoPauseHandler);
     this.progressBar.addHandlers();
   }
 
@@ -142,6 +146,8 @@ export class Player {
     this.muteBtn.removeEventListener('click', this.muteBtnHandler);
     this.uiElm.removeEventListener('click', this.playPauseHandler);
     this.videoElm.removeEventListener('error', this.videoErrorHandler);
+    this.videoElm.removeEventListener('play', this.videoPlayHandler);
+    this.videoElm.removeEventListener('pause', this.videoPauseHandler);
     this.progressBar.removeHandlers();
   }
 
@@ -163,14 +169,11 @@ export class Player {
   }
 
   play() {
-    this.videoElm.play().then(() => {
-      this.isPlaying = true;
-    }).catch(() => {});
+    this.videoElm.play().catch(() => {});
   }
 
   stop() {
     this.videoElm.pause();
-    this.isPlaying = false;
   }
 
   observe(callback) {
