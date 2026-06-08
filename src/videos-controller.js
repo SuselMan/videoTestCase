@@ -2,24 +2,30 @@ import { Player } from './player.js';
 import { MockVideosApi } from './mock-videos-api.js';
 import preloaderPath from './assets/preloader.svg?url';
 
+export class SoundController {
+  constructor() {
+    this.isMuted = true;
+    this.toggleMute = this._toggleMute.bind(this);
+  }
+
+  _toggleMute() {
+   this.isMuted  = !this.isMuted
+   document.dispatchEvent(new CustomEvent('muteChanged', { detail: this.isMuted }));
+  }
+}
+
 export class VideosController {
   constructor() {
-    // TODO: preloader;
     this.api = new MockVideosApi();
     this.scrollContainer = document.querySelector('#scroll-container');
     this.nextCursor = null;
     this.currentVideoIndex = 0;
     this.players = [];
     this.preloader = null;
-    this.isMuted = true;
+    this.soundController = new SoundController();
     this.loadVideos().then(() => {
       this.players[0]?.play();
     });
-  }
-
-  toggleMuted() {
-    this.isMuted = !this.isMuted;
-    document.dispatchEvent(new CustomEvent('mutechange', { detail: this.isMuted }));
   }
 
   addPreloader() {
@@ -40,6 +46,13 @@ export class VideosController {
     }
   }
 
+  addPlayer(videoData) {
+    const player = new Player(videoData, this.players.length, this.soundController);
+    this.players.push(player);
+    this.scrollContainer.appendChild(player.containerElement);
+    return player;
+  }
+
   async loadVideos() {
     this.addPreloader();
     try {
@@ -47,9 +60,7 @@ export class VideosController {
       this.nextCursor = data.nextCursor;
       this.removePreloader();
       data.items.forEach((video, index) => {
-        const player = new Player(video, this.players.length, this.isMuted, this.toggleMuted.bind(this));
-        this.players.push(player);
-        this.scrollContainer.appendChild(player.containerElement);
+        const player = this.addPlayer(video);
         if( index === 1 ) {
           player.observe((data) => this.videoChanged(data));
           player.load();
@@ -70,10 +81,8 @@ export class VideosController {
       const data = await this.api.getVideos({ cursor: this.nextCursor });
       this.removePreloader();
       this.nextCursor = data.nextCursor;
-      data.items.forEach((video) => {
-        const player = new Player(video, this.players.length, this.isMuted, this.toggleMuted.bind(this));
-        this.players.push(player);
-        this.scrollContainer.appendChild(player.containerElement);
+      data.items.forEach((videoData) => {
+        this.addPlayer(videoData);
       });
     } catch (err) {
 
@@ -81,11 +90,11 @@ export class VideosController {
   }
 
   videoChanged(newIndex) {
+    const oldIndex = this.currentVideoIndex;
+
     this.prevVideo?.unobserve();
     this.nextVideo?.unobserve();
     this.currentVideo.stop();
-
-    const oldIndex = this.currentVideoIndex;
 
     if(newIndex > oldIndex) {
       this.prevVideo?.unload();

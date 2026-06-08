@@ -7,103 +7,133 @@ const uiClassName = 'player-ui-container';
 const threshold = 0.7;
 
 export class Player {
-  constructor(data = {}, index, isMuted = true, toggleMute = () => {}) {
+  constructor(data = {}, index, soundController) {
     this.index = index;
     this.isPlaying = false;
+    this.intersectionObserver = null;
+    this.soundController = soundController;
+
+    // elements
+    this.muteButtonElm = null;
     this.containerElm = null;
+    this.uiContainerElm = null;
     this.videoElm = null;
-    this.observer = null;
-    this.muteButton = null;
-    this.uiContainer = null;
-    this.progressBar = null;
-    this.progressBarContainer = null;
-    this.toggleMute = toggleMute;
-    this.createVideo(isMuted);
+    this.progressBarElm = null;
+    this.progressBarContainerElm = null;
+
+    // bind handlers
+    this.muteHandler = (e) => this.handleMuteChange(e.detail);
+    this.muteButtonHandler = this.handleMuteButton.bind(this);
+    this.playPauseHandler = this.handlePlayPause.bind(this);
+    this.progressBarClickHandler = this.handleProgressBar.bind(this);
+    this.timeUpdateHandler = this.handleTimeUpdate.bind(this);
+
+    this.src = `${videoPath}/${data.filename}`;
+
+    this.createVideo();
     this.createUi();
-  }
-
-  createVideo(isMuted = true) {
-    this.containerElm = document.createElement('div');
-    this.videoElm = document.createElement('video');
-    this.containerElm.appendChild(this.videoElm);
-    this.videoElm.muted = isMuted;
-    this.videoElm.loop = true;
-    this.videoElm.playsinline = true;
-    this.videoElm.preload = 'metadata';
-    this.videoElm.classList.add(videoClassName);
-    this.containerElm.classList.add(containerClassName);
-    this.src = '';
-  }
-
-  createUi() {
-    this.uiContainer = document.createElement('div');
-    this.containerElm.appendChild(this.uiContainer);
-    this.uiContainer.classList.add(uiClassName);
-    const muteButton = document.createElement('button');
-    muteButton.classList.add('mute-button');
-    this.uiContainer.appendChild(muteButton);
-    this.muteButton = muteButton;
-
-    this.muteButton.addEventListener('click', (e) => {
-      this.toggleMute();
-      e.stopPropagation();
-    });
-
-    this.uiContainer.addEventListener('click', () => {
-      if(this.isPlaying) {
-        this.stop();
-      } else {
-        this.play();
-      }
-    })
-
-    document.addEventListener('mutechange', (e) => {
-      if(e.detail) {
-        this.muteButton.classList.remove('mute-button_muted');
-      } else {
-        this.muteButton.classList.add('mute-button_muted');
-      }
-      this.videoElm.muted = e.detail;
-    });
-
-    this.progressBarContainer = document.createElement('div');
-    this.progressBarContainer.classList.add('progress-bar-container');
-    this.progressBar = document.createElement('div');
-    this.progressBar.classList.add('progress-bar');
-    this.progressBarContainer.appendChild(this.progressBar);
-
-    this.progressBarContainer.addEventListener('click', (e) => {
-      const ratio = e.offsetX / e.currentTarget.offsetWidth;
-      this.videoElm.currentTime = this.videoElm.duration * ratio;
-      e.stopPropagation();
-    });
-
-
-    this.videoElm.addEventListener('timeupdate', () => {
-      const progress = this.videoElm.currentTime / this.videoElm.duration;
-      this.progressBar.style.width = `${progress * 100}%`;
-    });
-
-    this.uiContainer.appendChild(this.progressBarContainer);
   }
 
   get containerElement() {
     return this.containerElm;
   }
 
+  createVideo() {
+    this.containerElm = document.createElement('div');
+    this.videoElm = document.createElement('video');
+    this.containerElm.appendChild(this.videoElm);
+    this.videoElm.muted = this.soundController.isMuted;
+    this.videoElm.loop = true;
+    this.videoElm.playsinline = true;
+    this.videoElm.preload = 'metadata';
+    this.videoElm.classList.add(videoClassName);
+    this.containerElm.classList.add(containerClassName);
+  }
+
+  createUi() {
+    this.uiContainerElm = document.createElement('div');
+    this.containerElm.appendChild(this.uiContainerElm);
+    this.uiContainerElm.classList.add(uiClassName);
+    const muteButton = document.createElement('button');
+    muteButton.classList.add('mute-button');
+    this.uiContainerElm.appendChild(muteButton);
+    this.muteButtonElm = muteButton;
+
+    this.progressBarContainerElm = document.createElement('div');
+    this.progressBarContainerElm.classList.add('progress-bar-container');
+    this.progressBarElm = document.createElement('div');
+    this.progressBarElm.classList.add('progress-bar');
+    this.progressBarContainerElm.appendChild(this.progressBarElm);
+
+    this.uiContainerElm.appendChild(this.progressBarContainerElm);
+  }
+
+  handleTimeUpdate() {
+    const progress = this.videoElm.currentTime / this.videoElm.duration;
+    this.progressBarElm.style.width = `${progress * 100}%`;
+  }
+
+  handleProgressBar(e) {
+    const ratio = e.offsetX / e.currentTarget.offsetWidth;
+    this.videoElm.currentTime = this.videoElm.duration * ratio;
+    e.stopPropagation();
+  }
+
+  handlePlayPause() {
+    if(this.isPlaying) {
+      this.stop();
+    } else {
+      this.play();
+    }
+  }
+
+  handleMuteButton(e) {
+    this.soundController.toggleMute();
+    this.handleMuteChange(this.soundController.isMuted);
+    e.stopPropagation();
+  }
+
+  handleMuteChange(isMuted) {
+    if(isMuted) {
+      this.muteButtonElm.classList.remove('mute-button_muted');
+    } else {
+      this.muteButtonElm.classList.add('mute-button_muted');
+    }
+    this.videoElm.muted = isMuted;
+  }
+
+  addHandlers() {
+    document.addEventListener('muteChanged', this.muteHandler);
+    this.muteButtonElm.addEventListener('click', this.muteButtonHandler);
+    this.uiContainerElm.addEventListener('click', this.playPauseHandler);
+    this.progressBarContainerElm.addEventListener('click', this.progressBarClickHandler);
+    this.videoElm.addEventListener('timeupdate', this.timeUpdateHandler);
+  }
+
+  removeHandlers() {
+    document.addEventListener('muteChanged', this.muteHandler);
+    this.muteButtonElm.removeEventListener('click', this.muteButtonHandler);
+    this.uiContainerElm.removeEventListener('click', this.playPauseHandler);
+    this.progressBarContainerElm.removeEventListener('click', this.progressBarClickHandler);
+    this.videoElm.removeEventListener('timeupdate', this.timeUpdateHandler);
+  }
+
   load() {
     if(this.videoElm.getAttribute('src')) {
       return;
     }
-    this.uiContainer.classList.remove('hidden');
+    this.uiContainerElm.classList.remove('hidden');
     this.videoElm.src = this.src;
     this.videoElm.load();
+    this.addHandlers();
+    this.handleMuteChange(this.soundController.isMuted);
   }
 
   unload() {
     this.videoElm.src = '';
     this.videoElm.load();
-    this.uiContainer.classList.add('hidden');
+    this.uiContainerElm.classList.add('hidden');
+    this.removeHandlers();
   }
 
   play() {
@@ -118,7 +148,8 @@ export class Player {
   }
 
   observe(callback) {
-    this.observer = new IntersectionObserver((entries) => {
+    document.addEventListener('muteChanged', this.muteHandler);
+    this.intersectionObserver = new IntersectionObserver((entries) => {
       const entry = entries[0];
       if(entry.intersectionRatio >= threshold) {
         callback(this.index);
@@ -126,12 +157,12 @@ export class Player {
     }, {
       threshold,
     });
-    this.observer.observe(this.containerElmElement);
+    this.intersectionObserver.observe(this.containerElm);
   }
 
   unobserve() {
-    this.observer.unobserve(this.containerElmElement);
-    this.observer.disconnect();
-    this.observer = null;
+    this.intersectionObserver.unobserve(this.containerElm);
+    this.intersectionObserver.disconnect();
+    this.intersectionObserver = null;
   }
 }
