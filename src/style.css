@@ -13,6 +13,7 @@ body {
 
 #app {
   max-height: 100vh;
+  max-height: 100dvh;
 }
 
 #scroll-container {
@@ -22,6 +23,7 @@ body {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   max-height: 100vh;
+  max-height: 100dvh;
   scrollbar-width: none;
 }
 
@@ -35,6 +37,7 @@ body {
   align-items: center;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
 }
 
 .preloader__img {
