@@ -16,6 +16,7 @@ body {
 
 #app {
   max-height: 100svh;
+  overflow: hidden;
 }
 
 #scroll-container {
