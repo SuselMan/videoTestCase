@@ -23,12 +23,16 @@ export class VideosController {
     this.players = [];
     this.preloader = null;
     this.isLoadingNext = false;
+    this._wasPlayingBeforeHide = false;
     this.soundController = new SoundController();
     this.navUpBtn = null;
     this.navDownBtn = null;
-    this._createNavButtons();
     this.keydownHandler = this._onKeydown.bind(this);
     this.visibilityHandler = this._onVisibilityChange.bind(this);
+  }
+
+  init() {
+    this._createNavButtons();
     document.addEventListener('keydown', this.keydownHandler);
     document.addEventListener('visibilitychange', this.visibilityHandler);
     this.loadVideos().then(() => {
